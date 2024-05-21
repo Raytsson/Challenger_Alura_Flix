@@ -1,6 +1,9 @@
 package AluraFlix.Chanleger.Chanleger.controller;
 
-import AluraFlix.Chanleger.Chanleger.domain.videos.DTO.*;
+import AluraFlix.Chanleger.Chanleger.domain.videos.DTO.video.DadosAtualizacaoVideo;
+import AluraFlix.Chanleger.Chanleger.domain.videos.DTO.video.DadosCadastroVideo;
+import AluraFlix.Chanleger.Chanleger.domain.videos.DTO.video.DadosDetalhamentoVideo;
+import AluraFlix.Chanleger.Chanleger.domain.videos.DTO.video.DadosListagemVideo;
 import AluraFlix.Chanleger.Chanleger.domain.videos.Video;
 import AluraFlix.Chanleger.Chanleger.domain.videos.repositorie.VideoRepository;
 import AluraFlix.Chanleger.Chanleger.domain.videos.service.VideoService;

@@ -1,4 +1,4 @@
-package AluraFlix.Chanleger.Chanleger.domain.videos.DTO;
+package AluraFlix.Chanleger.Chanleger.domain.videos.DTO.video;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;

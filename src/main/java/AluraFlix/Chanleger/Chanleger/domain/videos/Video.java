@@ -1,7 +1,7 @@
 package AluraFlix.Chanleger.Chanleger.domain.videos;
 
-import AluraFlix.Chanleger.Chanleger.domain.videos.DTO.DadosAtualizacaoVideo;
-import AluraFlix.Chanleger.Chanleger.domain.videos.DTO.DadosCadastroVideo;
+import AluraFlix.Chanleger.Chanleger.domain.videos.DTO.video.DadosAtualizacaoVideo;
+import AluraFlix.Chanleger.Chanleger.domain.videos.DTO.video.DadosCadastroVideo;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;

@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.validator.constraints.URL;
 
 @Table(name = "videos")
 @Entity(name = "Video")
@@ -21,6 +22,7 @@ public class Video {
     private Long id;
     private String titulo;
     private String descricao;
+    @URL
     private String url;
 
     public Video(DadosCadastroVideo dados) {

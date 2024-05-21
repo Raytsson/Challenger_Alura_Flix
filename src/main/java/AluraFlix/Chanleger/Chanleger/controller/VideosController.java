@@ -3,6 +3,8 @@ package AluraFlix.Chanleger.Chanleger.controller;
 import AluraFlix.Chanleger.Chanleger.domain.videos.DTO.*;
 import AluraFlix.Chanleger.Chanleger.domain.videos.Video;
 import AluraFlix.Chanleger.Chanleger.domain.videos.repositorie.VideoRepository;
+import AluraFlix.Chanleger.Chanleger.domain.videos.service.VideoService;
+import AluraFlix.Chanleger.Chanleger.exceptions.ValidacaoException;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.net.URI;
 import java.util.List;
 import java.util.Optional;
 
@@ -19,14 +22,27 @@ public class VideosController {
 
     @Autowired
     VideoRepository repository;
+    @Autowired
+    VideoService service;
 
     @PostMapping
-    public ResponseEntity cadastrar(@RequestBody @Valid DadosCadastroVideo dados, UriComponentsBuilder uriBuilder){
-        var video =  new Video(dados);
-            repository.save(video);
-        var uri = uriBuilder.path("videos/{id}").buildAndExpand(video.getId()).toUri();
+    public ResponseEntity cadastrar(@RequestBody @Valid DadosCadastroVideo dados, UriComponentsBuilder uriBuilder) {
+        try {
+            // Realizar a validação
+            service.validarTituloEUrlExistente(dados.titulo(), dados.url());
 
-        return ResponseEntity.created(uri).body(new DadosDetalhamentoVideo(video));
+            // Se a validação passar, salvar o vídeo
+            Video video = new Video(dados);
+            repository.save(video);
+
+            // Criar URI para o recurso criado
+            URI uri = uriBuilder.path("videos/{id}").buildAndExpand(video.getId()).toUri();
+
+            return ResponseEntity.created(uri).body(new DadosDetalhamentoVideo(video));
+        } catch (ValidacaoException ex) {
+            // Se a validação falhar, retornar uma resposta de erro
+            return ResponseEntity.badRequest().body(ex.getMessage());
+        }
     }
 
     @GetMapping
@@ -41,21 +57,28 @@ public class VideosController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Video> atualizarVideo(@PathVariable Long id, @RequestBody DadosAtualizacaoVideo dados) {
+    public ResponseEntity<String> atualizarVideo(@PathVariable Long id, @RequestBody DadosAtualizacaoVideo dados) {
         Optional<Video> videoOptional = repository.findById(id);
         if (videoOptional.isPresent()) {
             Video video = videoOptional.get();
+
+            // Realizar a validação
+            try {
+                service.validarTituloEUrlExistente(dados.titulo(), dados.url());
+            } catch (ValidacaoException ex) {
+                return ResponseEntity.badRequest().body(ex.getMessage());
+            }
+
+            // Se a validação passar, atualizar o vídeo
             video.atualizarInformacoes(dados);
             repository.save(video);
-            return ResponseEntity.ok(video);
+            return ResponseEntity.ok(String.valueOf(video));
         } else {
             return ResponseEntity.notFound().build();
         }
     }
-
-
     @DeleteMapping("/{id}")
-   @Transactional
+    @Transactional
     public ResponseEntity<Void> deletar(@PathVariable Long id){
        if (!repository.existsById(id)) {
            return ResponseEntity.notFound().build(); // Retorna 404 se a entidade não existir

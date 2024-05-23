@@ -1,10 +1,12 @@
 package AluraFlix.Chanleger.Chanleger.controller;
 
+import AluraFlix.Chanleger.Chanleger.domain.videos.Categoria;
 import AluraFlix.Chanleger.Chanleger.domain.videos.DTO.video.DadosAtualizacaoVideo;
 import AluraFlix.Chanleger.Chanleger.domain.videos.DTO.video.DadosCadastroVideo;
 import AluraFlix.Chanleger.Chanleger.domain.videos.DTO.video.DadosDetalhamentoVideo;
 import AluraFlix.Chanleger.Chanleger.domain.videos.DTO.video.DadosListagemVideo;
 import AluraFlix.Chanleger.Chanleger.domain.videos.Video;
+import AluraFlix.Chanleger.Chanleger.domain.videos.repositorie.CategoriaRepository;
 import AluraFlix.Chanleger.Chanleger.domain.videos.repositorie.VideoRepository;
 import AluraFlix.Chanleger.Chanleger.domain.videos.service.VideoService;
 import AluraFlix.Chanleger.Chanleger.exceptions.ValidacaoException;
@@ -26,20 +28,21 @@ public class VideosController {
     @Autowired
     VideoRepository repository;
     @Autowired
+    CategoriaRepository categoriaRepository;
+    @Autowired
     VideoService service;
 
     @PostMapping
-    public ResponseEntity cadastrar(@RequestBody @Valid DadosCadastroVideo dados, UriComponentsBuilder uriBuilder) {
+    public ResponseEntity<?> cadastrar(@RequestBody @Valid DadosCadastroVideo dados, UriComponentsBuilder uriBuilder) {
         try {
             // Realizar a validação
             service.validarTituloEUrlExistente(dados.titulo(), dados.url());
 
             // Se a validação passar, salvar o vídeo
-            Video video = new Video(dados);
-            repository.save(video);
+            Video video = service.criarVideo(dados);
 
             // Criar URI para o recurso criado
-            URI uri = uriBuilder.path("videos/{id}").buildAndExpand(video.getId()).toUri();
+            URI uri = uriBuilder.path("/videos/{id}").buildAndExpand(video.getId()).toUri();
 
             return ResponseEntity.created(uri).body(new DadosDetalhamentoVideo(video));
         } catch (ValidacaoException ex) {
@@ -47,6 +50,7 @@ public class VideosController {
             return ResponseEntity.badRequest().body(ex.getMessage());
         }
     }
+
 
     @GetMapping
     public List<DadosListagemVideo> listar(){
@@ -60,7 +64,7 @@ public class VideosController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<String> atualizarVideo(@PathVariable Long id, @RequestBody DadosAtualizacaoVideo dados) {
+    public ResponseEntity<?> atualizarVideo(@PathVariable Long id, @RequestBody DadosAtualizacaoVideo dados) {
         Optional<Video> videoOptional = repository.findById(id);
         if (videoOptional.isPresent()) {
             Video video = videoOptional.get();
@@ -75,7 +79,7 @@ public class VideosController {
             // Se a validação passar, atualizar o vídeo
             video.atualizarInformacoes(dados);
             repository.save(video);
-            return ResponseEntity.ok(String.valueOf(video));
+            return ResponseEntity.ok(video);
         } else {
             return ResponseEntity.notFound().build();
         }

@@ -5,6 +5,7 @@ import jakarta.validation.constraints.Pattern;
 import org.hibernate.validator.constraints.URL;
 
 public record DadosCadastroVideo(
+        Long idCategoria,
         @NotBlank
         String titulo,
         @NotBlank
@@ -13,5 +14,5 @@ public record DadosCadastroVideo(
         @Pattern(regexp = "^(http|https)://.*$")
         @URL
         String url
-        ) {
+) {
 }

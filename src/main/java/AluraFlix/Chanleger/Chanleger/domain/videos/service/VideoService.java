@@ -1,17 +1,30 @@
 package AluraFlix.Chanleger.Chanleger.domain.videos.service;
 
 
+import AluraFlix.Chanleger.Chanleger.domain.videos.Categoria;
+import AluraFlix.Chanleger.Chanleger.domain.videos.DTO.video.DadosCadastroVideo;
+import AluraFlix.Chanleger.Chanleger.domain.videos.Video;
+import AluraFlix.Chanleger.Chanleger.domain.videos.repositorie.CategoriaRepository;
 import AluraFlix.Chanleger.Chanleger.domain.videos.repositorie.VideoRepository;
 import AluraFlix.Chanleger.Chanleger.exceptions.ValidacaoException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.Optional;
+
 
 @Service
 public class VideoService {
 
+    private final VideoRepository videoRepository;
+    private final CategoriaRepository categoriaRepository;
+
     @Autowired
-    private VideoRepository videoRepository;
+    public VideoService(VideoRepository videoRepository, CategoriaRepository categoriaRepository) {
+        this.videoRepository = videoRepository;
+        this.categoriaRepository = categoriaRepository;
+    }
 
     public void validarTituloEUrlExistente(String titulo, String url) {
         boolean tituloExistente = videoRepository.existsByTitulo(titulo);
@@ -24,5 +37,36 @@ public class VideoService {
         } else if (urlExistente) {
             throw new ValidacaoException("URL já existente");
         }
+    }
+
+    public Video criarVideo(DadosCadastroVideo dados) {
+        // Verificar se foi especificada uma categoria
+        Long idCategoria = dados.idCategoria();
+        if (idCategoria == null) {
+            // Se não foi especificada, atribuir automaticamente à categoria "LIVRE" (ID = 1)
+            idCategoria = 1L;
+        }
+
+        // Verificar se a categoria especificada é válida
+        Optional<Categoria> categoriaOptional = categoriaRepository.findById(idCategoria);
+        if (categoriaOptional.isEmpty()) {
+            throw new IllegalArgumentException("Categoria não encontrada para o ID fornecido: " + idCategoria);
+        }
+
+        Categoria categoria = categoriaOptional.get();
+
+        // Criar o novo vídeo com a categoria especificada
+        Video video = new Video(dados, categoria);
+
+        // Salvar o vídeo no banco de dados
+        return videoRepository.save(video);
+    }
+
+    public List<Video> buscarVideosPorCategoria(Long categoriaId) {
+        return videoRepository.findByCategoriaId(categoriaId);
+    }
+
+    public Video save(Video video) {
+        return videoRepository.save(video);
     }
 }

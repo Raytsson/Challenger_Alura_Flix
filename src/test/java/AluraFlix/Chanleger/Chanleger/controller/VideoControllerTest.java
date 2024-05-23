@@ -1,5 +1,6 @@
 package AluraFlix.Chanleger.Chanleger.controller;
 
+import AluraFlix.Chanleger.Chanleger.domain.videos.Video;
 import AluraFlix.Chanleger.Chanleger.domain.videos.service.VideoService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -12,11 +13,12 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-
 
 
 @SpringBootTest
@@ -38,8 +40,11 @@ public class VideoControllerTest {
     }
 
     @Test
-    @DisplayName("deveria devolver status code 201 para o post")
-    public void testPostVideo() throws Exception {
+    @DisplayName("deveria devolver status code 201 para o post ")
+    public void testePostVideos() throws Exception{
+        // Configurar o comportamento do VideoService mockado
+        when(videoService.criarVideo(any())).thenReturn(new Video(/* Dados do vídeo */));
+
         String newVideoJson = "{ \"titulo\": \"New Video\", \"descricao\": \"Description\", \"url\": \"http://newvideo.com\" }";
 
         mockMvc.perform(post("/videos")
@@ -52,7 +57,7 @@ public class VideoControllerTest {
     @DisplayName("deveria devolver status code 200 para o put")
     public void testPutVideo() throws Exception {
         // Primeiro, crie um vídeo para atualizar
-        String newVideoJson = "{ \"titulo\": \"New Video\", \"descricao\": \"Description\", \"url\": \"http://newvideo.com\" }";
+        String newVideoJson = "{\"categoria\": \"1\", \"titulo\": \"New Video\", \"descricao\": \"Description\", \"url\": \"http://newvideo.com\" }";
 
         MvcResult result = mockMvc.perform(post("/videos")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -65,7 +70,7 @@ public class VideoControllerTest {
         String id = location.split("/")[location.split("/").length - 1];
 
         // Atualize o vídeo criado
-        String updateVideoJson = "{ \"titulo\": \"Updated Video\", \"descricao\": \"Updated Description\", \"url\": \"http://updatedvideo.com\" }";
+        String updateVideoJson = "{\"categoria\": \"1\",\"titulo\": \"Updated Video\", \"descricao\": \"Updated Description\", \"url\": \"http://updatedvideo.com\" }";
 
         mockMvc.perform(put("/videos/" + id)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -77,7 +82,7 @@ public class VideoControllerTest {
     @DisplayName("deveria devolver status code 204 para o delete")
     public void testDeleteVideo() throws Exception {
         // Primeiro, crie um vídeo para deletar
-        String newVideoJson = "{ \"titulo\": \"New Video\", \"descricao\": \"Description\", \"url\": \"http://newvideo.com\" }";
+        String newVideoJson = "{ \"categoria\": \"1\", \"titulo\": \"New Video\", \"descricao\": \"Description\", \"url\": \"http://newvideo.com\" }";
 
         MvcResult result = mockMvc.perform(post("/videos")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -93,33 +98,6 @@ public class VideoControllerTest {
         mockMvc.perform(delete("/videos/" + id))
                 .andExpect(status().isNoContent());
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 }
+
+

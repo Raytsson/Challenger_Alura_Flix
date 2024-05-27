@@ -42,7 +42,6 @@ public class CategoriaControllerTest {
     @Test
     @DisplayName("deveria devolver status code 200 para o put")
     public void testPutcategoria() throws Exception {
-        // Primeiro, crie um categoria para atualizar
         String newCategoriaJson = "{ \"titulo\": \"new categoria\", \"cor\": \"cor\" }";
 
         MvcResult result = mockMvc.perform(post("/categorias")
@@ -55,7 +54,7 @@ public class CategoriaControllerTest {
         assert location != null;
         String id = location.split("/")[location.split("/").length - 1];
 
-        // Atualize o vídeo criado
+
         String updateCategoriaJson = "{ \"titulo\": \"update categoria\", \"cor\": \"update cor\" }";
 
         mockMvc.perform(put("/categorias/" + id)
@@ -67,7 +66,6 @@ public class CategoriaControllerTest {
     @Test
     @DisplayName("deveria devolver status code 204 para o delete")
     public void testDeleteCategoria() throws Exception {
-        // Primeiro, crie um vídeo para deletar
         String newCategoriaJson = "{ \"titulo\": \"update categoria\", \"cor\": \"update cor\" }";
 
         MvcResult result = mockMvc.perform(post("/categorias")
@@ -80,7 +78,6 @@ public class CategoriaControllerTest {
         assert location != null;
         String id = location.split("/")[location.split("/").length - 1];
 
-        // Delete o vídeo criado
         mockMvc.perform(delete("/categorias/" + id))
                 .andExpect(status().isNoContent());
     }

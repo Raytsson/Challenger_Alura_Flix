@@ -43,7 +43,6 @@ public class VideoService {
         // Verificar se foi especificada uma categoria
         Long idCategoria = dados.idCategoria();
         if (idCategoria == null) {
-            // Se não foi especificada, atribuir automaticamente à categoria "LIVRE" (ID = 1)
             idCategoria = 1L;
         }
 
@@ -55,10 +54,8 @@ public class VideoService {
 
         Categoria categoria = categoriaOptional.get();
 
-        // Criar o novo vídeo com a categoria especificada
         Video video = new Video(dados, categoria);
 
-        // Salvar o vídeo no banco de dados
         return videoRepository.save(video);
     }
 

@@ -2,13 +2,10 @@ package AluraFlix.Chanleger.Chanleger.domain.videos;
 
 import AluraFlix.Chanleger.Chanleger.domain.videos.DTO.video.DadosAtualizacaoVideo;
 import AluraFlix.Chanleger.Chanleger.domain.videos.DTO.video.DadosCadastroVideo;
-import AluraFlix.Chanleger.Chanleger.domain.videos.repositorie.CategoriaRepository;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.validator.constraints.URL;
-
-import java.util.Optional;
 
 @Table(name = "videos")
 @Entity(name = "Video")
@@ -38,6 +35,8 @@ public class Video {
         this.url = dados.url();
     }
 
+
+
     public void atualizarInformacoes(DadosAtualizacaoVideo dados) {
         if (dados.titulo() != null) {
             this.titulo = dados.titulo();
@@ -48,5 +47,10 @@ public class Video {
         if (dados.url() != null) {
             this.url = dados.url();
         }
+    }
+
+    public Video setCategoria(Categoria categoria) {
+        this.categoria = categoria;
+        return this;
     }
 }

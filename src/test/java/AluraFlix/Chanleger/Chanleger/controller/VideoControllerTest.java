@@ -1,5 +1,6 @@
 package AluraFlix.Chanleger.Chanleger.controller;
 
+import AluraFlix.Chanleger.Chanleger.domain.videos.Categoria;
 import AluraFlix.Chanleger.Chanleger.domain.videos.Video;
 import AluraFlix.Chanleger.Chanleger.domain.videos.service.VideoService;
 import org.junit.jupiter.api.DisplayName;
@@ -13,8 +14,9 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
+
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.doReturn;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -29,6 +31,7 @@ public class VideoControllerTest {
     @MockBean
     private VideoService videoService;
 
+
     @Autowired
     private MockMvc mockMvc;
 
@@ -40,10 +43,9 @@ public class VideoControllerTest {
     }
 
     @Test
-    @DisplayName("deveria devolver status code 201 para o post ")
-    public void testePostVideos() throws Exception{
-        // Configurar o comportamento do VideoService mockado
-        when(videoService.criarVideo(any())).thenReturn(new Video(/* Dados do vídeo */));
+    @DisplayName("deveria devolver status code 201 para o post")
+    public void testePostVideos() throws Exception {
+        doReturn(new Video().setCategoria(new Categoria())).when(videoService).criarVideo(any());
 
         String newVideoJson = "{ \"titulo\": \"New Video\", \"descricao\": \"Description\", \"url\": \"http://newvideo.com\" }";
 
@@ -54,10 +56,10 @@ public class VideoControllerTest {
     }
 
     @Test
-    @DisplayName("deveria devolver status code 200 para o put")
+    @DisplayName("PUT /videos/:id deve atualizar um vídeo e retornar 200")
     public void testPutVideo() throws Exception {
-        // Primeiro, crie um vídeo para atualizar
-        String newVideoJson = "{\"categoria\": \"1\", \"titulo\": \"New Video\", \"descricao\": \"Description\", \"url\": \"http://newvideo.com\" }";
+        doReturn(new Video().setCategoria(new Categoria())).when(videoService).criarVideo(any());
+        String newVideoJson = "{ \"titulo\": \"New Video\", \"descricao\": \"Description\", \"url\": \"http://newvideo.com\" }";
 
         MvcResult result = mockMvc.perform(post("/videos")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -69,35 +71,42 @@ public class VideoControllerTest {
         assert location != null;
         String id = location.split("/")[location.split("/").length - 1];
 
-        // Atualize o vídeo criado
-        String updateVideoJson = "{\"categoria\": \"1\",\"titulo\": \"Updated Video\", \"descricao\": \"Updated Description\", \"url\": \"http://updatedvideo.com\" }";
+        String updateCategoriaJson = "{ \"titulo\": \"update categoria\"}";
 
         mockMvc.perform(put("/videos/" + id)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(updateVideoJson))
+                        .content(updateCategoriaJson))
                 .andExpect(status().isOk());
     }
 
-    @Test
-    @DisplayName("deveria devolver status code 204 para o delete")
-    public void testDeleteVideo() throws Exception {
-        // Primeiro, crie um vídeo para deletar
-        String newVideoJson = "{ \"categoria\": \"1\", \"titulo\": \"New Video\", \"descricao\": \"Description\", \"url\": \"http://newvideo.com\" }";
 
+    @Test
+    @DisplayName("DELETE /videos/:id deve deletar um vídeo e retornar 204")
+    public void testDeleteVideo() throws Exception {
+        doReturn(new Video().setCategoria(new Categoria())).when(videoService).criarVideo(any());
+        String newVideoJson = "{ \"titulo\": \"New Video\", \"descricao\": \"Description\", \"url\": \"http://newvideo.com\" }";
+
+        String id = createVideoAndGetId(newVideoJson);
+
+        mockMvc.perform(delete("/videos/" + id))
+                .andExpect(status().isNoContent());
+
+        mockMvc.perform(get("/videos/" + id))
+                .andExpect(status().isNotFound());
+    }
+
+    private String createVideoAndGetId(String videoJson) throws Exception {
         MvcResult result = mockMvc.perform(post("/videos")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(newVideoJson))
+                        .content(videoJson))
                 .andExpect(status().isCreated())
                 .andReturn();
 
         String location = result.getResponse().getHeader("Location");
         assert location != null;
-        String id = location.split("/")[location.split("/").length - 1];
-
-        // Delete o vídeo criado
-        mockMvc.perform(delete("/videos/" + id))
-                .andExpect(status().isNoContent());
+        return location.split("/")[location.split("/").length - 1];
     }
 }
+
 
 
